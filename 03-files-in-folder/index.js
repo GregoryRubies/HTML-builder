@@ -1,6 +1,6 @@
-const path = require("path");
-const fs = require("fs");
-const dir = path.join(__dirname, "secret-folder");
+const { join, parse } = require("path");
+const { readdir, stat } = require("fs");
+const dir = join(__dirname, "secret-folder");
 
 function byteRound (syze) {
   if(syze < 2**10) return syze + 'B'
@@ -10,13 +10,13 @@ function byteRound (syze) {
   return (syze / 2**40).toFixed(2) + 'TB'
 }
 
-fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+readdir(dir, { withFileTypes: true }, (err, files) => {
   if (err) throw err;
   files.forEach(file => {
     if(file.isFile()){
-      fs.stat(path.join(dir, file.name), { throwIfNoEntry: false }, (err, stats)=>{
+      stat(join(dir, file.name), { throwIfNoEntry: false }, (err, stats)=>{
         if (err) throw err;     
-        console.log(`- ${path.parse(file.name).name}-${path.parse(file.name).ext.substring(1)}-${byteRound(stats.size)}`);
+        console.log(`- ${parse(file.name).name}-${parse(file.name).ext.substring(1)}-${byteRound(stats.size)}`);
       });
     }
   })
