@@ -1,24 +1,24 @@
-const path = require("path");
-const fs = require("fs");
-const {stdin, stdout, exit} = process;
-const dir = path.join(__dirname, 'text.txt');
+const { join } = require("node:path");
+const { access, writeFile, appendFile, constants } = require("node:fs/promises");
+const { stdin, stdout, exit } = process;
+
+const dir = join(__dirname, 'text.txt');
+
+(async function (dir) {
+  await access(dir, constants.R_OK)
+    .then(() => appendFile(dir, ''))
+    .catch(() => writeFile(dir, ''));
+})(dir)
 
 stdout.write("Привет!\nДалее вам предлагается ввести произвольный текст.\nДля завершения нажмите ctrl + c или введите exit.\n\nВведите текст: ");
 
-stdin.on("data", data => {
+stdin.on("data", async data => {
   let text = data.toString();
   if(text.trim() == "exit"){
     stdout.write("Ввод завершен.");
     exit();
   } else {
-    fs.access(dir, err => {
-      if (err) {
-        fs.writeFile(dir, text, err => { if (err) throw err; });
-      } else {
-        fs.appendFile(dir, text, err => { if (err) throw err; });
-      }
-    });
-
+    await appendFile(dir, text);
     stdout.write("->");
   }
 });
